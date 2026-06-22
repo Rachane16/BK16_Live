@@ -29,15 +29,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Upload football-data.org token to Worker Secrets
+      - name: Prepare encrypted Worker secret
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
-        run: printf '%s' "$FOOTBALL_DATA_TOKEN" | npx wrangler secret put FOOTBALL_DATA_TOKEN
+        run: printf 'FOOTBALL_DATA_TOKEN=%s\n' "$FOOTBALL_DATA_TOKEN" > .env.production
 
-      - name: Deploy Worker
+      - name: Deploy Worker with secret
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+        run: npx wrangler deploy --secrets-file .env.production
+
+      - name: Remove temporary secret file
+        if: always()
+        run: rm -f .env.production
