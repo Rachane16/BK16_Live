@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="BK16 Live streaming hub and Thailand-time football schedule">
+<meta name="theme-color" content="#050816">
+<title>IPTV by BK-16</title>
+
+<link rel="stylesheet" href="assets/css/app.css">
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img class="brand-logo" alt="BK-16" src="https://dl.dropbox.com/scl/fi/nx2b6zyo5cp4hwgtit12b/22-11-66-01-33-23.png?rlkey=khnfawin5mmaxg1vxq5l7nro3&dl=0">
+      <div class="brand-copy">
+        <div class="eyebrow"><span class="pulse"></span> Live Streaming Hub</div>
+        <div class="brand-title">IPTV by BK-16</div>
+      </div>
+    </div>
+
+    <nav class="top-actions nav-tabs" role="tablist" aria-label="เมนูหลัก">
+      <button
+        class="nav-tab active"
+        id="tabChannels"
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="channelsPanel"
+        data-tab="channels"
+      >
+        <span class="nav-tab-icon" aria-hidden="true">📺</span>
+        <span>ช่องทีวี</span>
+      </button>
+
+      <button
+        class="nav-tab"
+        id="tabSchedule"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="schedulePanel"
+        data-tab="schedule"
+      >
+        <span class="nav-tab-icon" aria-hidden="true">⚽</span>
+        <span>ตารางการถ่ายทอด</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="app-shell">
+  <section class="hero">
+    <div class="player-card">
+      <div class="player-frame">
+        <video id="v" controls playsinline muted></video>
+      </div>
+    </div>
+
+    <aside class="side-card">
+      <div class="side-content">
+        <p class="section-label">Now Playing</p>
+        <img id="featuredLogo" class="featured-logo" src="" alt="">
+        <h1 id="featuredName" class="featured-title">IPTV by BK-16</h1>
+        <p id="status">กำลังเตรียมสัญญาณ...</p>
+      </div>
+    </aside>
+  </section>
+
+  <section
+    id="channelsPanel"
+    class="tab-panel active"
+    role="tabpanel"
+    aria-labelledby="tabChannels"
+  >
+    <section id="grid-sports" class="channel-grid"></section>
+
+    <p class="hint" id="updateHint">
+      * คลิกโลโก้ช่องเพื่อรับชมทันที | อัพเดตล่าสุด: <span id="lastUpdated"></span>
+    </p>
+  </section>
+
+  <section
+    id="schedulePanel"
+    class="tab-panel"
+    role="tabpanel"
+    aria-labelledby="tabSchedule"
+    hidden
+  >
+    <div class="schedule-card">
+      <div class="schedule-head">
+        <div class="schedule-title-wrap">
+          <p class="schedule-kicker">Live football schedule</p>
+          <h2>ตารางการถ่ายทอด</h2>
+          <p class="schedule-subtitle">เวลาประเทศไทยอัตโนมัติ • ชื่อทีมและลีกภาษาอังกฤษ • แสดงสกอร์ สถานะ และช่องถ่ายทอด</p>
+        </div>
+
+        <div class="schedule-head-actions">
+          <span id="scheduleSource" class="schedule-source-pill">LIVE API</span>
+          <button id="refreshSchedule" class="schedule-refresh-btn" type="button" title="อัปเดตตารางอีกครั้ง">
+            <span class="schedule-refresh-icon" aria-hidden="true">↻</span>
+            <span class="schedule-refresh-label">รีเฟรช</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="schedule-summary">
+        <div class="schedule-stat">
+          <span class="schedule-stat-icon" aria-hidden="true">▦</span>
+          <div class="schedule-stat-copy">
+            <small>วันที่แข่งขัน</small>
+            <strong id="scheduleDateLabel">กำลังตรวจสอบ...</strong>
+          </div>
+        </div>
+
+        <div class="schedule-stat">
+          <span class="schedule-stat-icon" aria-hidden="true">⚽</span>
+          <div class="schedule-stat-copy">
+            <small>แมตช์วันนี้</small>
+            <strong><span id="scheduleCount">0</span> คู่</strong>
+          </div>
+        </div>
+
+        <div class="schedule-stat">
+          <span class="schedule-stat-icon" aria-hidden="true">◷</span>
+          <div class="schedule-stat-copy">
+            <small>อัปเดตล่าสุด</small>
+            <strong id="scheduleUpdated">--:-- น.</strong>
+          </div>
+        </div>
+      </div>
+
+      <div id="scheduleList" class="schedule-list"></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    ใช้กับลิงก์สตรีมหรือรับชมเท่านั้น ห้ามเผยแพร่เชิงพาณิชย์ • Design by BK-16
+  </div>
+</main>
+
+<!-- ===== Mobile / External Player Fallback Modal ===== -->
+<div id="playerModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <img id="modalLogo" src="" alt="">
+      <div class="modal-title">
+        <strong id="modalName">External Player</strong>
+        <span id="modalSub">เลือกวิธีเปิดช่องนี้</span>
+      </div>
+      <button class="close-btn" id="closeModal" title="ปิด">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-note" id="modalNote"></p>
+
+      <div id="nonIosButtons" class="btn-grid">
+        <button class="action-btn primary" id="btnMobilePlayer">
+          เปิดด้วยแอป Player
+          <small>เลือก VLC / Wiseplay / Liftplay หรือแอปที่รองรับ HLS</small>
+        </button>
+        <button class="action-btn warn" id="btnOpenTab">
+          เปิดแท็บใหม่
+          <small>ใช้เมื่อ browser หรือแอปในเครื่องสามารถรับลิงก์นี้ไปเล่นต่อได้</small>
+        </button>
+      </div>
+
+      <div id="iosButtons" style="display:none">
+        <p style="margin:0 0 8px;font-size:13px;color:var(--muted);">เลือกแอปที่ติดตั้งในเครื่อง:</p>
+        <div class="ios-btn-grid">
+          <button class="ios-app-btn" id="btnVLC">
+            📺 VLC
+            <small>vlc://</small>
+          </button>
+          <button class="ios-app-btn" id="btnLiftplay">
+            🎬 Liftplay
+            <small>liftplay://</small>
+          </button>
+          <button class="ios-app-btn" id="btnInfuse">
+            🎞 Infuse
+            <small>infuse://</small>
+          </button>
+          <button class="ios-app-btn" id="btnNPlayer">
+            🎵 nPlayer
+            <small>nplayer-http://</small>
+          </button>
+        </div>
+        <button class="action-btn warn" id="btnIOSTab" style="margin-top:10px;width:100%;">
+          เปิดแท็บใหม่
+          <small>ถ้าไม่มีแอปข้างต้น ให้ลองเปิดลิงก์ในแท็บใหม่</small>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/channels.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
